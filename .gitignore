@@ -1,0 +1,28 @@
+# Node.js dependencies
+node_modules/
+
+# VitePress build output
+# 注意：因为你之前选择在根目录初始化，dist目录在.vitepress下
+.vitepress/dist/
+
+# VitePress cache and temp files
+.vitepress/cache/
+.vitepress/temp/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE / Editor specific files (optional)
+.vscode/
+# .idea/
+
+# Environment variables file (if you ever add one)
+.env
+.env.*
+!.env.example
+
+# Log files (if any)
+*.log
