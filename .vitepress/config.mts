@@ -31,11 +31,10 @@ function getSidebarItems(dir: string, baseLink: string) {
 
 
         return {
-          text: title, // 使用提取到的标题或文件名
-          link: `${baseLink}/${path.basename(file, '.md')}` // 生成链接 /dreams/filename
+          text: title, 
+          link: `${baseLink}/${path.basename(file, '.md')}` 
         }
       })
-      // 可选：按文件名排序 (或其他排序逻辑)
       .sort((a, b) => a.link.localeCompare(b.link));
 
     return files;
@@ -60,6 +59,10 @@ export default defineConfig({
       { text: '首页', link: '/' },
     ],
 
+    search: {
+      provider: 'local'
+    },
+
     sidebar: [
       {
         text: '梦境',
@@ -71,21 +74,15 @@ export default defineConfig({
         collapsed: true, // 诗歌默认折叠
         items: getSidebarItems('poems', '/poems') // 动态生成诗歌侧边栏
       },
-      // 你可以为其他分类（如 'notes'）添加类似的配置
-      // {
-      //   text: '随笔杂记',
-      //   collapsed: true,
-      //   items: getSidebarItems('notes', '/notes')
-      // },
     ],
 
     socialLinks: [ // 可以添加你的 Github 或其他社交链接
-      // { icon: 'github', link: 'https://github.com/your-username' }
+      { icon: 'github', link: 'https://github.com/C76GN' }
     ],
 
     footer: {
       message: 'Released under the MIT License.', // 或者你喜欢的版权信息
-      copyright: 'Copyright © 2024-present C76gn' // 修改为你自己的名字和年份
+      copyright: 'Copyright © 2024-present C76GN' // 修改为你自己的名字和年份
     },
 
     // 如果需要，可以添加编辑链接等其他配置
