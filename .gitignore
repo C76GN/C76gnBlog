@@ -26,3 +26,7 @@ Thumbs.db
 
 # Log files (if any)
 *.log
+
+repomix-output.txt
+.repomixignore
+repomix.config.json
