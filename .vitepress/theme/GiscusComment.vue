@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { useData } from 'vitepress';
 
-// Correctly get the 'page' object which contains path information
-const { isDark, page } = useData(); // Get 'page' instead of 'route'
+const { isDark, page } = useData();
 
-// --- Giscus 配置值 (来自你的设置) ---
 const repo = 'C76GN/C76gnBlog';
 const repoId = 'R_kgDOOkoG-Q';
 const category = 'Comments';
@@ -18,33 +16,14 @@ const lang = 'zh-CN';
 const giscusThemeBase = 'preferred_color_scheme';
 const strict = '0';
 const loading = 'lazy';
-// --- 配置结束 ---
 
 const giscusTheme = ref(isDark.value ? 'dark' : 'light');
+const giscusContainer = ref<HTMLDivElement | null>(null);
 
-watch(isDark, (dark) => {
-    giscusTheme.value = dark ? 'dark' : 'light';
-    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
-    if (iframe && iframe.contentWindow) {
-        iframe.contentWindow.postMessage(
-            { giscus: { setConfig: { theme: giscusTheme.value } } },
-            'https://giscus.app'
-        );
-    }
-}, { immediate: true });
-
-onMounted(() => {
-    // Ensure page data is available before trying to use it indirectly (via key change)
-    // Although the key change handles component re-creation, defensive checks are good.
-    if (!page.value) {
-        console.error("Page data not available on mount.");
-        // Decide if you want to prevent Giscus loading without page context
-        // return;
-    }
-
-    const container = document.getElementById('giscus-container');
+const loadGiscus = () => {
+    const container = giscusContainer.value;
     if (!container) {
-        console.error('Giscus container not found');
+        console.error('Giscus container ref not available.');
         return;
     }
 
@@ -71,12 +50,32 @@ onMounted(() => {
     script.setAttribute('data-loading', loading);
 
     container.appendChild(script);
-});
+    console.log(`Giscus loaded for path: ${page.value?.relativePath}`);
+};
+
+watch(isDark, (dark) => {
+    giscusTheme.value = dark ? 'dark' : 'light';
+    const iframe = document.querySelector<HTMLIFrameElement>('iframe.giscus-frame');
+    if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: giscusTheme.value } } }, 'https://giscus.app');
+    }
+}, { immediate: true });
+
+watch(
+    () => page.value?.relativePath,
+    (newPath, oldPath) => {
+        if (newPath && newPath !== oldPath) {
+            nextTick(() => {
+                loadGiscus();
+            });
+        }
+    },
+    { immediate: true }
+);
+
 </script>
 
 <template>
-    <!-- Use page.relativePath for the key, ensuring 'page' exists -->
-    <div id="giscus-container" :key="page ? page.relativePath : 'giscus-ssr-fallback'" style="margin-top: 2rem;">
-        <!-- Giscus 评论组件将加载在这里 -->
+    <div ref="giscusContainer" id="giscus-container" style="margin-top: 2rem;">
     </div>
 </template>
