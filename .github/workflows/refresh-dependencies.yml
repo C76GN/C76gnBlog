@@ -1,0 +1,43 @@
+name: Refresh VitePress dependencies
+
+on:
+  push:
+    branches:
+      - codex/update-vitepress-security
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: ${{ !contains(github.event.head_commit.message, '[skip refresh]') }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout update branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex/update-vitepress-security
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Upgrade dependencies
+        run: npm install --save-dev vitepress@2.0.0-alpha.19 @types/node@^24
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+
+      - name: Build documentation
+        run: npm run docs:build
+
+      - name: Commit refreshed lockfile
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add package.json package-lock.json
+          git diff --cached --quiet || git commit -m "Update VitePress dependencies [skip refresh]"
+          git push
